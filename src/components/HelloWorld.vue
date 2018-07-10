@@ -1,5 +1,16 @@
 <template>
   <div class="hello">
+
+    <!-- Add a new item -->
+    <form @submit="addItem(todo)">
+      <h2>Add a New Item</h2>
+      <input v-model="todo" placeholder="What needs to be done?" class="input">
+      <button type="submit" class="button success">Add New Item</button>
+    </form>
+
+    <hr>
+
+    <!-- A collection of items -->
     <table>
       <tr>
         <th>Date</th>
@@ -27,11 +38,12 @@
 
     <hr>
 
-    <form @submit="addItem(todo)">
-      <h2>Add a New Item</h2>
-      <input v-model="todo" placeholder="What needs to be done?" class="input">
-      <button type="submit" class="button success">Add New Item</button>
-    </form>
+    <!-- A collection of items per day -->
+    <div class="today">
+      <div v-for="(item, idx) in todos" :key="idx">
+        <p>{{ item.todo }}</p>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -44,12 +56,14 @@ export default {
   data () {
     return {
       items: [],
+      todos: [],
       todo: ''
     }
   },
   firestore () {
     return {
-      items: db.collection('items').orderBy('createdAt')
+      items: db.collection('items').orderBy('createdAt'),
+      todos: db.collection('items').where('done', '==', false).orderBy('createdAt')
     }
   },
   methods: {

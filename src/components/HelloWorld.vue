@@ -1,94 +1,76 @@
 <template>
   <div class="hello">
-    <h1>{{ msg }}</h1>
-    <h2>Essential Links</h2>
-    <ul>
-      <li>
-        <a
-          href="https://vuejs.org"
-          target="_blank"
-        >
-          Core Docs
-        </a>
-      </li>
-      <li>
-        <a
-          href="https://forum.vuejs.org"
-          target="_blank"
-        >
-          Forum
-        </a>
-      </li>
-      <li>
-        <a
-          href="https://chat.vuejs.org"
-          target="_blank"
-        >
-          Community Chat
-        </a>
-      </li>
-      <li>
-        <a
-          href="https://twitter.com/vuejs"
-          target="_blank"
-        >
-          Twitter
-        </a>
-      </li>
-      <br>
-      <li>
-        <a
-          href="http://vuejs-templates.github.io/webpack/"
-          target="_blank"
-        >
-          Docs for This Template
-        </a>
-      </li>
-    </ul>
-    <h2>Ecosystem</h2>
-    <ul>
-      <li>
-        <a
-          href="http://router.vuejs.org/"
-          target="_blank"
-        >
-          vue-router
-        </a>
-      </li>
-      <li>
-        <a
-          href="http://vuex.vuejs.org/"
-          target="_blank"
-        >
-          vuex
-        </a>
-      </li>
-      <li>
-        <a
-          href="http://vue-loader.vuejs.org/"
-          target="_blank"
-        >
-          vue-loader
-        </a>
-      </li>
-      <li>
-        <a
-          href="https://github.com/vuejs/awesome-vue"
-          target="_blank"
-        >
-          awesome-vue
-        </a>
-      </li>
-    </ul>
+    <table>
+      <tr>
+        <th>Date</th>
+        <th>Description</th>
+        <th>Done?</th>
+        <th>Delete?</th>
+      </tr>
+      <tr v-for="(item, idx) in items" :key="idx">
+        <td>
+          <p>{{ item.createdAt | format }}</p>
+        </td>
+        <td>
+          <p v-bind:class="{ progress: !item.done }">{{ item.todo }}</p>
+        </td>
+        <td>
+          <input type="checkbox" :checked="item.done" @click="updateStatus(item.id, item.done)">
+        </td>
+        <td>
+          <button class="button caution" @click="deleteItem(item.id)">
+            Delete
+          </button>
+        </td>
+      </tr>
+    </table>
+
+    <hr>
+
+    <form @submit="addItem(todo)">
+      <h2>Add a New Item</h2>
+      <input v-model="todo" placeholder="What needs to be done?" class="input">
+      <button type="submit" class="button success">Add New Item</button>
+    </form>
   </div>
 </template>
 
 <script>
+
+import { db } from '../main'
+
 export default {
   name: 'HelloWorld',
   data () {
     return {
-      msg: 'Welcome to Your Vue.js App'
+      items: [],
+      todo: ''
+    }
+  },
+  firestore () {
+    return {
+      items: db.collection('items').orderBy('createdAt')
+    }
+  },
+  methods: {
+    addItem (todo) {
+      const createdAt = new Date()
+      const done = false
+      db.collection('items').add({ createdAt, todo, done })
+      this.todo = ''
+    },
+    deleteItem (id) {
+      db.collection('items').doc(id).delete()
+    },
+    updateStatus (id, status) {
+      db.collection('items').doc(id).update({ done: !status })
+    }
+  },
+  filters: {
+    format (value) {
+      if (value.length === 0) return ''
+      var d = new Date(parseInt(value.seconds) * 1000)
+      return d.toLocaleDateString() + ' ' + d.toLocaleTimeString()
     }
   }
 }
@@ -109,5 +91,8 @@ li {
 }
 a {
   color: #42b983;
+}
+.progress {
+  color: red;
 }
 </style>

@@ -14,6 +14,11 @@ firebase.initializeApp({
   projectId: 'project-scheduler-928bd',
   databaseURL: 'https://project-scheduler-928bd.firebaseio.com'
 })
+
+const firestore = firebase.firestore()
+const settings = {timestampsInSnapshots: true}
+firestore.settings(settings)
+
 export const db = firebase.firestore()
 
 Vue.config.productionTip = false

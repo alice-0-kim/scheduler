@@ -2,29 +2,16 @@
 
 > A Vue.js project
 
-## Build Setup
+## Get Started
 
 ``` bash
-# install dependencies
+git clone https://github.com/alice-0-kim/scheduler.git
+cd scheduler
 npm install
-
-# serve with hot reload at localhost:8080
 npm run dev
-
-# build for production with minification
-npm run build
-
-# build for production and view the bundle analyzer report
-npm run build --report
-
-# run unit tests
-npm run unit
-
-# run e2e tests
-npm run e2e
-
-# run all tests
-npm test
 ```
+The live demo of the project will be available at `http://localhost:8080/#/`
 
 For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
+
+Any suggestions or contributions will be appreciated!

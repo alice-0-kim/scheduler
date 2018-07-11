@@ -140,6 +140,14 @@ a {
   box-shadow: 1px 1px 1px 1px rgba(0,0,0,0.2);
   transition: all ease 0.3s;
 }
+.hello .button.caution {
+  background: #ff6961;
+  /*box-shadow: 1px 1px 1px 1px rgba(255,105,97,0.2);*/
+}
+.hello .button.success {
+  background: #2aab2a;
+  /*box-shadow: 1px 1px 1px 1px rgba(58,206,58,0.2);*/
+}
 /* ----- container ----- */
 .container {
   display: inline-block;

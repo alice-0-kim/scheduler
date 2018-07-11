@@ -3,7 +3,12 @@
 > A Vue.js project
 
 ![screenshot](https://github.com/alice-0-kim/scheduler/blob/master/screenshots/scheduler0.png)
+
+<hr>
+
 ![screenshot](https://github.com/alice-0-kim/scheduler/blob/master/screenshots/scheduler1.png)
+
+<hr>
 
 ## Get Started
 

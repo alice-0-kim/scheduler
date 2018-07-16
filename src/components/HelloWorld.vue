@@ -46,6 +46,17 @@
       </div>
       <p v-if="todos.length === 0">You're awesome <font-awesome-icon icon="coffee" /></p>
     </div>
+
+    <!-- Calendar -->
+    <div class="container calendar">
+      <h2>Calendar</h2>
+      <h3>{{ year }}</h3>
+      <h3>{{ month }}</h3>
+      <div v-for="a in days" :key="a"><p>{{ a }}</p></div>
+      <div class="cell" v-for="b in pre" :key="b + '-pre'"></div>
+      <div class="cell" v-for="c in 31" :key="c"><p>{{ c }}</p></div>
+      <div class="cell" v-for="d in post" :key="d + '-post'"></div>
+    </div>
   </div>
 </template>
 
@@ -59,7 +70,17 @@ export default {
     return {
       items: [],
       todos: [],
-      todo: ''
+      todo: '',
+      year: 2018,
+      month: 7,
+      days: ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'],
+      pre: 0,
+      post: 4
+    }
+  },
+  watch: {
+    items: function (arr) {
+      this.updateCalendar(arr)
     }
   },
   firestore () {
@@ -80,6 +101,14 @@ export default {
     },
     updateStatus (id, status) {
       db.collection('items').doc(id).update({ done: !status })
+    },
+    updateCalendar (arr) {
+      for (var i of arr) {
+        var d = new Date(parseInt(i.createdAt.seconds) * 1000)
+        console.log(d.getFullYear())
+        console.log(d.getMonth())
+        console.log(d.getDate())
+      }
     }
   },
   filters: {
@@ -161,5 +190,30 @@ a {
 }
 .container h2 {
   margin: 0;
+}
+/* ----- calendar ----- */
+.calendar {
+  display: block;
+  clear: both;
+  width: calc(100% - 40px);
+  //font-size: 0;
+}
+.calendar h2 {
+  font-size: 24px;
+  margin: inherit;
+}
+.calendar .cell {
+  display: inline-block;
+  font-size: 1em;
+  width: calc((100% - 15px) / 7);
+  height:200px;
+  /* background:yellowgreen; */
+  border: 1px solid gray;
+  font-size: 15px;
+  text-align: left;
+  float: left;
+}
+.calendar .cell p{
+  padding: 0 10px;
 }
 </style>

@@ -5,7 +5,7 @@
     <form @submit="addItem(todo)">
       <h2>Add a New Item</h2>
       <input v-model="todo" placeholder="What needs to be done?" class="input">
-      <button type="submit" class="button success">Add New Item</button>
+      <button type="submit" class="button success animate">Add New Item</button>
     </form>
 
     <hr>
@@ -30,7 +30,7 @@
             <input type="checkbox" :checked="item.done" @click="updateStatus(item.id, item.done)">
           </td>
           <td>
-            <button class="button caution" @click="deleteItem(item.id)">
+            <button class="button caution animate" @click="deleteItem(item.id)">
               Delete
             </button>
           </td>
@@ -50,10 +50,17 @@
     <!-- Calendar -->
     <div class="container calendar">
       <h2>Calendar</h2>
-      <h3>{{ year }} | {{ month }}</h3>
+      <div class="sub">
+        <button class="button" @click="getPreviousMonth">&#10094;</button>
+        <h3>{{ year }} | {{ month + 1 }}</h3>
+        <button class="button" @click="getNextMonth">&#10095;</button>
+      </div>
       <div class="cell day" v-for="a in days" :key="a"><p>{{ a }}</p></div>
       <div class="cell" v-for="b in pre" :key="b + '-pre'"></div>
-      <div class="cell" v-for="c in 31" :key="c" :id="c"><p>{{ c }}</p></div>
+      <div class="cell" v-for="c in end" :key="c" :id="c">
+        <p>{{ c }}</p>
+        <div></div>
+      </div>
       <div class="cell" v-for="d in post" :key="d + '-post'"></div>
     </div>
   </div>
@@ -73,13 +80,23 @@ export default {
       year: 2018,
       month: 6,
       days: ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'],
+      end: '',
       pre: 0,
       post: 4
     }
   },
+  created () {
+    var d = new Date()
+    this.year = d.getFullYear()
+    this.month = d.getMonth()
+    this.end = new Date(this.year, this.month + 1, 0).getDate()
+    this.pre = new Date(this.year, this.month, 1).getDay()
+    this.post = 6 - new Date(this.year, this.month, this.end).getDay()
+    this.logDate()
+  },
   watch: {
     items: function (arr) {
-      this.updateCalendar(arr)
+      this.updateCalendar(this.items)
     }
   },
   firestore () {
@@ -102,19 +119,61 @@ export default {
       db.collection('items').doc(id).update({ done: !status })
     },
     updateCalendar (arr) {
+      for (var j = 1; j < this.end; j++) {
+        this.logDate()
+        console.log(j)
+        var cell = document.getElementById(j)
+        var temp = cell.childNodes[0]
+        cell.innerHTML = ''
+        cell.appendChild(temp)
+      }
       for (var i of arr) {
         var d = new Date(parseInt(i.createdAt.seconds) * 1000)
         var y = d.getFullYear()
         var m = d.getMonth()
         var t = d.getDate()
+        cell = document.getElementById(t)
         if (this.isOnCalendar(y, m)) {
           var elem = document.createElement('p')
           var text = document.createTextNode(i.todo)
           elem.appendChild(text)
-          elem.className = i.done ? 'success todo' : 'caution todo'
-          document.getElementById(t).appendChild(elem)
+          elem.className = i.done ? 'done todo' : 'in-progress todo'
+          cell.appendChild(elem)
         }
       }
+    },
+    getPreviousMonth () {
+      if (this.month === 0) {
+        this.year--
+        this.month = 11
+      } else {
+        this.month--
+      }
+      this.end = new Date(this.year, this.month + 1, 0).getDate()
+      this.pre = new Date(this.year, this.month, 1).getDay()
+      this.post = 6 - new Date(this.year, this.month, this.end).getDay()
+      // this.logDate()
+      this.updateCalendar(this.items)
+    },
+    getNextMonth () {
+      if (this.month === 11) {
+        this.year++
+        this.month = 0
+      } else {
+        this.month++
+      }
+      this.end = new Date(this.year, this.month + 1, 0).getDate()
+      this.pre = new Date(this.year, this.month, 1).getDay()
+      this.post = 6 - new Date(this.year, this.month, this.end).getDay()
+      // this.logDate()
+      this.updateCalendar(this.items)
+    },
+    logDate () {
+      console.log(this.year)
+      console.log(this.month)
+      console.log(this.end)
+      console.log(this.pre)
+      console.log(this.post)
     },
     isOnCalendar (y, m) {
       return y === this.year && m === this.month
@@ -160,23 +219,32 @@ a {
   width: 100%;
 }
 /* ----- hello ----- */
-.hello .input {
+.animate {
+  transition: all ease 0.3s;
+}
+.input {
   border: none;
   box-shadow: 1px 1px 1px 1px rgba(0,0,0,0.2);
-  transition: all ease 0.3s;
   width: 500px;
   height: 30px;
   margin: 0 20px 20px 0;
 }
-.hello .input:hover, .hello .button:hover {
-  transform: translateY(-2px);
-  box-shadow: 1px 2px 3px 3px rgba(0,0,0,0.2);
-}
-.hello .button {
+.button {
   border: none;
   border-radius: 5px;
   box-shadow: 1px 1px 1px 1px rgba(0,0,0,0.2);
-  transition: all ease 0.3s;
+}
+.animate:hover {
+  transform: translateY(-2px);
+  box-shadow: 1px 2px 3px 3px rgba(0,0,0,0.2);
+}
+.caution {
+  background: #ff6961;
+  /*box-shadow: 1px 1px 1px 1px rgba(255,105,97,0.2);*/
+}
+.success {
+  background: #2aab2a;
+  /*box-shadow: 1px 1px 1px 1px rgba(58,206,58,0.2);*/
 }
 /* ----- container ----- */
 .container {
@@ -224,15 +292,19 @@ a {
 </style>
 <style>
 .todo {
+  color: #fff;
   padding: 0 10px;
   margin: 5px 0;
 }
-.caution {
-  background: #ff6961;
-  /*box-shadow: 1px 1px 1px 1px rgba(255,105,97,0.2);*/
+.todo.in-progress {
+  background: #ff90d5;
 }
-.success {
-  background: #2aab2a;
-  /*box-shadow: 1px 1px 1px 1px rgba(58,206,58,0.2);*/
+.todo.done {
+  background: #90d5ff;
+}
+.sub * {
+  display: inline-block;
+  width: fit-content;
+  margin: 10px auto;
 }
 </style>

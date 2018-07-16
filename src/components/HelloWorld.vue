@@ -50,11 +50,10 @@
     <!-- Calendar -->
     <div class="container calendar">
       <h2>Calendar</h2>
-      <h3>{{ year }}</h3>
-      <h3>{{ month }}</h3>
-      <div v-for="a in days" :key="a"><p>{{ a }}</p></div>
+      <h3>{{ year }} | {{ month }}</h3>
+      <div class="cell day" v-for="a in days" :key="a"><p>{{ a }}</p></div>
       <div class="cell" v-for="b in pre" :key="b + '-pre'"></div>
-      <div class="cell" v-for="c in 31" :key="c"><p>{{ c }}</p></div>
+      <div class="cell" v-for="c in 31" :key="c" :id="c"><p>{{ c }}</p></div>
       <div class="cell" v-for="d in post" :key="d + '-post'"></div>
     </div>
   </div>
@@ -72,7 +71,7 @@ export default {
       todos: [],
       todo: '',
       year: 2018,
-      month: 7,
+      month: 6,
       days: ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'],
       pre: 0,
       post: 4
@@ -105,10 +104,20 @@ export default {
     updateCalendar (arr) {
       for (var i of arr) {
         var d = new Date(parseInt(i.createdAt.seconds) * 1000)
-        console.log(d.getFullYear())
-        console.log(d.getMonth())
-        console.log(d.getDate())
+        var y = d.getFullYear()
+        var m = d.getMonth()
+        var t = d.getDate()
+        if (this.isOnCalendar(y, m)) {
+          var elem = document.createElement('p')
+          var text = document.createTextNode(i.todo)
+          elem.appendChild(text)
+          elem.className = i.done ? 'success todo' : 'caution todo'
+          document.getElementById(t).appendChild(elem)
+        }
       }
+    },
+    isOnCalendar (y, m) {
+      return y === this.year && m === this.month
     }
   },
   filters: {
@@ -169,14 +178,6 @@ a {
   box-shadow: 1px 1px 1px 1px rgba(0,0,0,0.2);
   transition: all ease 0.3s;
 }
-.hello .button.caution {
-  background: #ff6961;
-  /*box-shadow: 1px 1px 1px 1px rgba(255,105,97,0.2);*/
-}
-.hello .button.success {
-  background: #2aab2a;
-  /*box-shadow: 1px 1px 1px 1px rgba(58,206,58,0.2);*/
-}
 /* ----- container ----- */
 .container {
   display: inline-block;
@@ -213,7 +214,25 @@ a {
   text-align: left;
   float: left;
 }
-.calendar .cell p{
+.calendar .cell.day {
+  height: auto;
+  text-align: center;
+}
+.calendar .cell p {
   padding: 0 10px;
+}
+</style>
+<style>
+.todo {
+  padding: 0 10px;
+  margin: 5px 0;
+}
+.caution {
+  background: #ff6961;
+  /*box-shadow: 1px 1px 1px 1px rgba(255,105,97,0.2);*/
+}
+.success {
+  background: #2aab2a;
+  /*box-shadow: 1px 1px 1px 1px rgba(58,206,58,0.2);*/
 }
 </style>

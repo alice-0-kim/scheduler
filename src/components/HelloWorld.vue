@@ -57,7 +57,7 @@
       </div>
       <div class="cell day" v-for="a in days" :key="a"><p>{{ a }}</p></div>
       <div class="cell" v-for="b in pre" :key="b + '-pre'"></div>
-      <div class="cell" v-for="c in end" :key="c" :id="c">
+      <div class="cell" v-for="c in end" :key="c" :id="year + '-' + month + '-' + c">
         <p>{{ c }}</p>
         <div></div>
       </div>
@@ -96,8 +96,14 @@ export default {
   },
   watch: {
     items: function (arr) {
-      this.updateCalendar(this.items)
+      this.updateCalendar(arr)
     }
+  },
+  updated: function () {
+    this.$nextTick(function () {
+      this.refreshCalendar(this.end)
+      this.updateCalendar(this.items)
+    })
   },
   firestore () {
     return {
@@ -118,22 +124,22 @@ export default {
     updateStatus (id, status) {
       db.collection('items').doc(id).update({ done: !status })
     },
-    updateCalendar (arr) {
-      for (var j = 1; j < this.end; j++) {
-        this.logDate()
-        console.log(j)
-        var cell = document.getElementById(j)
+    refreshCalendar (num) {
+      for (var j = 1; j < num; j++) {
+        var cell = document.getElementById(this.year + '-' + this.month + '-' + j)
         var temp = cell.childNodes[0]
         cell.innerHTML = ''
         cell.appendChild(temp)
       }
+    },
+    updateCalendar (arr) {
       for (var i of arr) {
         var d = new Date(parseInt(i.createdAt.seconds) * 1000)
         var y = d.getFullYear()
         var m = d.getMonth()
         var t = d.getDate()
-        cell = document.getElementById(t)
         if (this.isOnCalendar(y, m)) {
+          var cell = document.getElementById(this.year + '-' + this.month + '-' + t)
           var elem = document.createElement('p')
           var text = document.createTextNode(i.todo)
           elem.appendChild(text)
@@ -152,8 +158,6 @@ export default {
       this.end = new Date(this.year, this.month + 1, 0).getDate()
       this.pre = new Date(this.year, this.month, 1).getDay()
       this.post = 6 - new Date(this.year, this.month, this.end).getDay()
-      // this.logDate()
-      this.updateCalendar(this.items)
     },
     getNextMonth () {
       if (this.month === 11) {
@@ -165,8 +169,6 @@ export default {
       this.end = new Date(this.year, this.month + 1, 0).getDate()
       this.pre = new Date(this.year, this.month, 1).getDay()
       this.post = 6 - new Date(this.year, this.month, this.end).getDay()
-      // this.logDate()
-      this.updateCalendar(this.items)
     },
     logDate () {
       console.log(this.year)

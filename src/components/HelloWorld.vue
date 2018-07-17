@@ -2,8 +2,9 @@
   <div class="hello">
 
     <!-- Add a new item -->
-    <form @submit="addItem(todo)">
+    <form @submit="addItem(date, todo)">
       <h2>Add a New Item</h2>
+      <input v-model="date" type="datetime-local" class="input">
       <input v-model="todo" placeholder="What needs to be done?" class="input">
       <button type="submit" class="button success animate">Add New Item</button>
     </form>
@@ -16,6 +17,7 @@
         <tr>
           <th>Date</th>
           <th>Description</th>
+          <th>Repeat?</th>
           <th>Done?</th>
           <th>Delete?</th>
         </tr>
@@ -27,7 +29,10 @@
             <p v-bind:class="{ progress: !item.done }">{{ item.todo }}</p>
           </td>
           <td>
-            <input type="checkbox" :checked="item.done" @click="updateStatus(item.id, item.done)">
+            <input type="checkbox" :checked="item.repeat" @click="updateRepeat(item.id, item.repeat)">
+          </td>
+          <td>
+            <input type="checkbox" :checked="item.done" @click="updateProgress(item.id, item.done)">
           </td>
           <td>
             <button class="button caution animate" @click="deleteItem(item.id)">
@@ -77,6 +82,7 @@ export default {
       items: [],
       todos: [],
       todo: '',
+      date: '',
       year: 2018,
       month: 6,
       days: ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'],
@@ -112,16 +118,21 @@ export default {
     }
   },
   methods: {
-    addItem (todo) {
-      const createdAt = new Date()
+    addItem (date, todo) {
+      const createdAt = new Date(date)
+      // const createdAt = new Date()
       const done = false
-      db.collection('items').add({ createdAt, todo, done })
+      const repeat = false
+      db.collection('items').add({createdAt, todo, done, repeat})
       this.todo = ''
     },
     deleteItem (id) {
       db.collection('items').doc(id).delete()
     },
-    updateStatus (id, status) {
+    updateRepeat (id, status) {
+      db.collection('items').doc(id).update({ repeat: !status })
+    },
+    updateProgress (id, status) {
       db.collection('items').doc(id).update({ done: !status })
     },
     refreshCalendar (num) {
@@ -138,7 +149,7 @@ export default {
         var y = d.getFullYear()
         var m = d.getMonth()
         var t = d.getDate()
-        if (this.isOnCalendar(y, m)) {
+        if (this.isOnCalendar(y, m, i.repeat)) {
           var cell = document.getElementById(this.year + '-' + this.month + '-' + t)
           var elem = document.createElement('p')
           var text = document.createTextNode(i.todo)
@@ -177,8 +188,8 @@ export default {
       console.log(this.pre)
       console.log(this.post)
     },
-    isOnCalendar (y, m) {
-      return y === this.year && m === this.month
+    isOnCalendar (y, m, r) {
+      return y === this.year && m === this.month || r && m === this.month
     }
   },
   filters: {
@@ -227,6 +238,8 @@ a {
 .input {
   border: none;
   box-shadow: 1px 1px 1px 1px rgba(0,0,0,0.2);
+  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+  font-size: medium;
   width: 500px;
   height: 30px;
   margin: 0 20px 20px 0;

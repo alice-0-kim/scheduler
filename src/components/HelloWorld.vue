@@ -189,7 +189,7 @@ export default {
       console.log(this.post)
     },
     isOnCalendar (y, m, r) {
-      return y === this.year && m === this.month || r && m === this.month
+      return (y === this.year && m === this.month) || (r && m === this.month)
     }
   },
   filters: {

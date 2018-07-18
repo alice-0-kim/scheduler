@@ -19,8 +19,8 @@ Vue.component('font-awesome-icon', FontAwesomeIcon)
 Vue.use(VueFire)
 
 firebase.initializeApp({
-  projectId: 'project-scheduler-928bd',
-  databaseURL: 'https://project-scheduler-928bd.firebaseio.com'
+  projectId: 'YOUR_PROJECT_ID',
+  databaseURL: 'YOUR_DATABASE_URL'
 })
 
 const firestore = firebase.firestore()
